@@ -27,7 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by pti on 19/02/14.
+ * HttpClient wrapper to transparent log in to CAS servers
+ *
+ * CAS protected services rely on a redirect and logging into a form
+ * based authentication page and then be redirected back to the service.
+ *
+ * This kind of authentication is not supported out of the box in the
+ * standard httpclient.
  */
 public class CasHttpClient {
 
@@ -37,18 +43,9 @@ public class CasHttpClient {
 
     String casPrefix;
 
-    public String getCasUserName() {
-        return casUserName;
-    }
-
     public void setCasUserName(String casUserName) {
         this.casUserName = casUserName;
     }
-
-    public String getCasPassWord() {
-        return casPassWord;
-    }
-
     public void setCasPassWord(String casPassWord) {
         this.casPassWord = casPassWord;
     }
@@ -70,6 +67,7 @@ public class CasHttpClient {
         params.add(new BasicNameValuePair("username", casUserName));
         params.add(new BasicNameValuePair("password", casPassWord));
         params.add(new BasicNameValuePair("lt", parser.getLt()));
+        params.add(new BasicNameValuePair("execution", parser.getExecution()));
         params.add(new BasicNameValuePair("_eventId", parser.getEventId()));
         params.add(new BasicNameValuePair("submit", "LOGIN"));
         httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -91,18 +89,23 @@ public class CasHttpClient {
     public <T> T get(String url, ResponseHandler<? extends T> responseHandler) throws IOException {
         HttpCoreContext context = new HttpCoreContext();
         HttpGet httpGet = new HttpGet(url);
-        HttpResponse response = client.execute(httpGet, context);
-        if (isLoginRequired(context)) {
-            try {
-                String location = loginToCas(response, context);
-                response = client.execute(new HttpGet(location),context);
-            } catch (Exception e) {
-                log.error(e.getClass().getName(), e);
-                throw new ClientProtocolException("Unable to parse CAS Login page.", e);
-            }
+        HttpResponse response;
+        try {
+            response = client.execute(httpGet, context);
+            if (isLoginRequired(context)) {
+                try {
+                    String location = loginToCas(response, context);
+                    response = client.execute(new HttpGet(location), context);
+                } catch (Exception e) {
+                    log.error(e.getClass().getName(), e);
+                    throw new ClientProtocolException("Unable to parse CAS Login page.", e);
+                }
 
+            }
+            return responseHandler.handleResponse(response);
+        } finally {
+            httpGet.releaseConnection();
         }
-        return responseHandler.handleResponse(response);
     }
 
     public boolean isLoginRequired(HttpCoreContext context) {
@@ -110,20 +113,26 @@ public class CasHttpClient {
         String url_prefix = targetHost.toURI();
         final String uri = context.getRequest().getRequestLine().getUri();
         String responseUrl = url_prefix + uri;
-        return responseUrl != null && responseUrl.startsWith(casPrefix);
+        return responseUrl.startsWith(casPrefix);
     }
 
     private String loginToCas(HttpResponse response, HttpCoreContext context) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, URISyntaxException {
+        log.info("Logging in to CAS server");
         CasLoginPageParser parser = new CasLoginPageParser(response.getEntity().getContent());
         HttpPost httpPost = new HttpPost(derivePostUrl(context, parser));
-        addLoginParameters(parser, httpPost);
-        HttpResponse loginResponse = client.execute(httpPost,context);
-        if (loginResponse.getStatusLine().getStatusCode() == 302) {
-            return loginResponse.getFirstHeader("Location").getValue();
+        try {
+            addLoginParameters(parser, httpPost);
+            HttpResponse loginResponse = client.execute(httpPost,context);
+            log.info("response: {}", loginResponse.getStatusLine());
+            if (loginResponse.getStatusLine().getStatusCode() == 302) {
+                return loginResponse.getFirstHeader("Location").getValue();
 
-        } else {
-            log.error("Something went wrong logging into CAS, redirect expected");
-            throw new IOException("Unable to log in into CAS");
+            } else {
+                log.error("Something went wrong logging into CAS, redirect expected");
+                throw new IOException("Unable to log in into CAS");
+            }
+        } finally {
+            httpPost.releaseConnection();
         }
     }
 
@@ -134,18 +143,26 @@ public class CasHttpClient {
     public HttpResponse head(String url) throws IOException {
         HttpCoreContext context = new HttpCoreContext();
         HttpHead httpHead = new HttpHead(url);
-        HttpResponse response = client.execute(httpHead,context);
-        if (isLoginRequired(context)) {
-            try {
-                String location = loginToCas(response, context);
-                response = client.execute(new HttpHead(location),context);
-            } catch (Exception e) {
-                log.error(e.getClass().getName(), e);
-                throw new ClientProtocolException("Unable to parse CAS Login page.", e);
-            }
+        try {
+            HttpResponse response = client.execute(httpHead,context);
+            if (isLoginRequired(context)) {
+                try {
+                    String location = loginToCas(response, context);
+                    response = client.execute(new HttpHead(location),context);
+                } catch (Exception e) {
+                    log.error(e.getClass().getName(), e);
+                    throw new ClientProtocolException("Unable to parse CAS Login page.", e);
+                }
 
+            }
+            return response;
+
+        } catch (IOException e) {
+            log.error("IOException caught:", e);
+            throw e;
+        } finally {
+            httpHead.releaseConnection();
         }
-        return response;
 
     }
 
