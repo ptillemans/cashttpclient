@@ -16,8 +16,8 @@ public class Sample {
         String password = rdr.readLine().trim();
 
         CasHttpClient client = new CasHttpClient("https://cas.melexis.com:8443/cas/login", 20);
-        client.setCasPassWord(password);
-        client.setCasUserName(username);
+        client.setPassword(password);
+        client.setUsername(username);
 
         System.out.println(client.get("http://cvs.tess.elex.be"));
     }

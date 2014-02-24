@@ -29,8 +29,8 @@ public class SampleMultiThread {
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
         final CasHttpClient client = new CasHttpClient("https://cas.melexis.com:8443/cas/login", 20);
-        client.setCasPassWord(password);
-        client.setCasUserName(username);
+        client.setPassword(password);
+        client.setUsername(username);
 
         client.get("http://cvs.tess.elex.be");
 

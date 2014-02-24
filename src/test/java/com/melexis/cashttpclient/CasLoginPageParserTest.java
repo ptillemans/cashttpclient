@@ -1,35 +1,28 @@
 package com.melexis.cashttpclient;
 
-import com.melexis.cashttpclient.mock.CasSecuredServer;
-import com.melexis.cashttpclient.mock.MockCasServer;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by pti on 19/02/14.
- */
+
 public class CasLoginPageParserTest {
 
 
-    private CasLoginPageParser parser;
+    private CasLoginPage parser;
 
     @Before
     public void setUp() throws IOException, SAXException, ParserConfigurationException {
         InputStream inputStream = new FileInputStream("src/test/resources/login");
-        parser = new CasLoginPageParser(inputStream);
+        parser = new CasLoginPage(inputStream);
     }
 
     @Test

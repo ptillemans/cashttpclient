@@ -21,7 +21,6 @@ import java.net.URLEncoder;
 public class MockCasServer {
 
     private static final Logger log = LoggerFactory.getLogger(MockCasServer.class);
-    private int port;
     Server server;
 
     class CasServerHandler extends AbstractHandler {
@@ -48,22 +47,23 @@ public class MockCasServer {
                     && password.equals("test_pass")) {
 
                 log.info("Logging in to service as {}", username);
-                log.info("redirectiong to {}", service);
+                log.info("redirect to {}", service);
                 // store ticket in session
                 final String ticket = CasSecuredServer.TGT_SAMPLE_TICKET;
                 session.setAttribute("ticket", ticket);
                 httpServletResponse.sendRedirect(service + "?ticket=" + URLEncoder.encode(ticket,"utf-8"));
                 request.setHandled(true);
-            }
+            } else {
 
-            // redirect to the service if we are already logged in
-            final String ticket = (String) session.getAttribute("ticket");
-            final String pathInfo = request.getPathInfo();
-            if (ticket != null
-                    && ticket.equals(CasSecuredServer.TGT_SAMPLE_TICKET)
-                    && pathInfo.startsWith("/login")) {
-                httpServletResponse.sendRedirect(service + "?ticket=" + URLEncoder.encode(ticket,"utf-8"));
-                request.setHandled(true);
+                // redirect to the service if we are already logged in
+                final String ticket = (String) session.getAttribute("ticket");
+                final String pathInfo = request.getPathInfo();
+                if (ticket != null
+                        && ticket.equals(CasSecuredServer.TGT_SAMPLE_TICKET)
+                        && pathInfo.contains("/login")) {
+                    httpServletResponse.sendRedirect(service + "?ticket=" + URLEncoder.encode(ticket,"utf-8"));
+                    request.setHandled(true);
+                }
             }
         }
     }

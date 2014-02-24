@@ -7,14 +7,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 
-/**
- * Created by pti on 19/02/14.
- */
 public class CasHttpClientTest {
 
     public static String SIMPLE_URL = "http://localhost:13002/simple.html";
@@ -37,8 +32,8 @@ public class CasHttpClientTest {
         casServer = new MockCasServer();
         secureServer = new CasSecuredServer();
         client = new CasHttpClient(CasSecuredServer.CAS_URL, 100);
-        client.setCasUserName("test_user");
-        client.setCasPassWord("test_pass");
+        client.setUsername("test_user");
+        client.setPassword("test_pass");
     }
 
     @Test
