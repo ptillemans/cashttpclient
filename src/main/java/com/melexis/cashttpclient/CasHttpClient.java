@@ -120,10 +120,9 @@ public class CasHttpClient {
         return getHttpResponse(httpDelete, responseHandler);
     }
 
-    public String delete(String url, List<NameValuePair> params) throws IOException {
-        return post(url,params, new BasicResponseHandler());
+    public String delete(String url) throws IOException {
+        return delete(url, new BasicResponseHandler());
     }
-
 
     private <T> T getHttpResponse(HttpRequestBase httpRequest, ResponseHandler<? extends T> responseHandler) throws IOException {
         HttpCoreContext context = new HttpCoreContext();
