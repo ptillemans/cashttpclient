@@ -134,6 +134,7 @@ public class CasHttpClient {
                     // replace the original URI with the one returned from CAS
                     // which contains the authentication ticket.
                     httpRequest.setURI(new URI(location));
+                    log.info("Redirect back to {}", location);
                     response = client.execute(httpRequest,context);
                 } catch (Exception e) {
                     log.error(e.getClass().getName(), e);

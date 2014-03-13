@@ -3,6 +3,7 @@ package com.melexis.cashttpclient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,9 +12,15 @@ import java.util.concurrent.Executors;
  */
 public class SampleMultiThread {
 
+    public static final int NR_REQUESTS = 250;
     private static String username;
     private static String password;
     private static int numThreads;
+
+    private static String[] urls = {"http://cvs.tess.elex.be/cgi-bin/cvsweb/~checkout~/design/90316/planning/MLX90316_APQP.xls?rev=1.14",
+            "http://cvs.sofia.elex.be/cgi-bin/cvsweb/~checkout~/design/10111/planning/APQP.XLS?rev=1.11",
+            "http://cvs.sensors.elex.be/cgi-bin/cvsweb/~checkout~/design/12123/planning/12123_Planning.mpp?rev=1.7",
+            "http://cvs.erfurt.elex.be/cgi-bin/cvsweb/~checkout~/design/33300/planning/MircoPlan_33300AA.mpp?rev=1.30"};
 
     public static void main(String[] args) throws IOException, InterruptedException {
         BufferedReader rdr = new BufferedReader(new InputStreamReader(System.in));
@@ -34,14 +41,24 @@ public class SampleMultiThread {
 
         client.get("http://cvs.tess.elex.be");
 
-        for(int i = 0; i < 100; i++) {
+        Random random = new Random();
+
+        final String[] results = new String[NR_REQUESTS];
+
+        for(int i = 0; i < NR_REQUESTS; i++) {
             final int cnt = i;
+            final String url = urls[random.nextInt(urls.length)];
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        client.get("http://cvs.tess.elex.be");
-                        System.out.print(cnt + ",");
+                        long start = System.currentTimeMillis();
+                        client.head(url);
+                        long runtime = System.currentTimeMillis() - start;
+                        results[cnt] = cnt + ", \"" + url + "\", " + runtime;
+                        System.out.println(cnt + "(" + url + ") : " + runtime);
+
+
                     } catch (Exception e) {
                         System.out.println();
                         System.out.println("Request " + cnt + " failed." + e.getMessage());
@@ -61,5 +78,10 @@ public class SampleMultiThread {
             System.out.println("3 seconds passed");
         }
 
+        for (int i = 0; i < NR_REQUESTS; i++) {
+            if (results[i] != null) {
+                System.out.println(results[i]);
+            }
+        }
     }
 }
