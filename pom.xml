@@ -8,6 +8,10 @@
     <artifactId>cashttpclient</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <scm>
+        <connection>scm:git:ssh://git@github.com/melexis/com.melexis.foundation.git</connection>
+    </scm>
+
     <distributionManagement>
         <repository>
             <id>nexus</id>
