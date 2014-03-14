@@ -129,6 +129,11 @@ public class CasHttpClient {
         try {
             HttpResponse response = client.execute(httpRequest,context);
             if (isLoginRequired(context)) {
+            	if(httpRequest instanceof HttpHead){
+            		httpRequest = new HttpGet(httpRequest.getURI());
+            		context = new HttpCoreContext();
+            		response = client.execute(httpRequest,context);
+            	}
                 try {
                     String location = loginToCas(response, context);
                     // replace the original URI with the one returned from CAS
