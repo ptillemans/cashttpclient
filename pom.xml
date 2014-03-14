@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com:ptillemans/cashttpclient.git</connection>
+        <connection>scm:git:ssh://git@github.com/ptillemans/cashttpclient.git</connection>
     </scm>
 
     <distributionManagement>
