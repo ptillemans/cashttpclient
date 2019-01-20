@@ -29,7 +29,6 @@ public class MockCasServer {
         public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
             HttpSession session = request.getSession(true);
 
-            request.extractParameters();
             String service = request.getParameter("service");
             final String username = request.getParameter("username");
             final String password = request.getParameter("password");

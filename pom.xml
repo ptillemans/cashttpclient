@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>7.6.8.v20121106</version>
+            <version>9.3.24.v20180605</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -66,12 +66,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.3</version>
+            <version>4.3.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3</version>
+            <version>4.3.6</version>
         </dependency>
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
@@ -81,6 +81,5 @@
         </dependency>
 
     </dependencies>
-
 
 </project>
